@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blynk Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="title">ENVIRONMENT MONITORING SYSTEM</div>
+    <div class="dashboard">
+        <div id="v1" class="widget">
+            <h2>PM 1.0</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v2" class="widget">
+            <h2>PM 2.5</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v3" class="widget">
+            <h2>PM 10</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v4" class="widget">
+            <h2>CO2</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v5" class="widget">
+            <h2>Ozone</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v6" class="widget">
+            <h2>UV</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v7" class="widget">
+            <h2>Temperature</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v8" class="widget">
+            <h2>Humidity</h2>
+            <p>Loading...</p>
+        </div>
+        <div id="v10" class="widget">
+            <h2>VOC</h2>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://sgp1.blynk.cloud/external/api/get';
+        const TOKEN = 'xFg_PhRUjsNvydjcQm3G08pzhMYdsj-y';
+        const PINS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v10'];
+
+        async function fetchData() {
+            try {
+                const responses = await Promise.all(PINS.map(async (pin) => {
+                    const url = `${API_URL}?token=${TOKEN}&${pin}`;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        return `Error: HTTP ${response.status}`;
+                    }
+                    const data = await response.text();
+                    return data || 'Error: Invalid pin';
+                }));
+
+                PINS.forEach((pin, index) => {
+                    const value = responses[index];
+                    document.querySelector(`#${pin} p`).innerText = value;
+                });
+            } catch (error) {
+                PINS.forEach(pin => {
+                    document.querySelector(`#${pin} p`).innerText = 'Error loading data';
+                });
+            }
+        }
+
+        fetchData();
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>
